@@ -1,0 +1,17 @@
+@import '../../vendor/filament/forms/dist/module.esm.css';
+@import "login.css";
+@import "view-plant.css";
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.filament-sidebar-header:before {
+    --tw-gradient-stops: var(--tw-gradient-from),theme('colors.primary.300') var(--tw-gradient-via-position),var(--tw-gradient-to) !important;
+}
+.filament-global-search-result p > span {
+    display: block;
+    margin: 0px !important;
+    width: 100%;
+    text-align: right;
+}

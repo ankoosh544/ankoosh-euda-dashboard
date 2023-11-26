@@ -1,0 +1,7 @@
+.filament-login-page form:before {
+    --tw-gradient-stops: var(--tw-gradient-from),theme('colors.primary.500') var(--tw-gradient-via-position),var(--tw-gradient-to) !important;
+}
+
+.filament-login-page {
+    background-image: radial-gradient(circle at top,theme('colors.primary.100'),#fff 50%);
+}
