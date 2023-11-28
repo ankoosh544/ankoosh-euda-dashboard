@@ -32,6 +32,10 @@ class Plant extends Model
         return $this->belongsTo(User::class);
     }
 
+    public function customer(){
+        return $this->hasOne(User::class, 'id', 'assigned_to');
+    }
+
     public function jobs()
     {
         return $this->hasMany(Job::class, 'plant_id', 'plantId');

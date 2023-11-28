@@ -22,6 +22,12 @@ Route::get('/reset', [CommandController::class, 'reset']);
 Route::get('/things/{record}/download', [ThingResource::class, 'downloadAction'])
     ->name('filament.resources.things.download');
 
+Route::post('/rule', [CommandController::class, 'createIotRule']);    
+
+Route::post('/trigger-action', [CommandController::class, 'triggerAction']);
+
+Route::get('/sendPlantId', [CommandController::class, 'sendPlantId']);
+
 Route::get('/create-iot-rule', function () {
         // Set up AWS IoT client
         $iotClient = app(IotClient::class);

@@ -32,15 +32,16 @@ use App\Filament\Resources\PlantResource\Pages\CreateBoard;
 
 
 
+
 class PlantResource extends Resource
 {
     protected static ?string $model = Plant::class;
-
     protected static ?string $navigationIcon = 'heroicon-o-office-building';
     protected static ?string $modelLabel = 'Plant';
     protected static ?string $pluralModelLabel = 'Plants list';
     protected static ?string $navigationLabel = 'Plants list';
     protected static ?string $recordTitleAttribute = 'Plants list';
+
 
     public static function getGloballySearchableAttributes(): array
     {
@@ -56,13 +57,15 @@ class PlantResource extends Resource
 
     public static function getEloquentQuery(): Builder
     {
-        if (Auth::User()->is_admin) {
+        $user = Auth::user();
+
+        if ($user->is_admin) {
             return parent::getEloquentQuery();
         }
 
-        return parent::getEloquentQuery()
-            ->where('owner_id', Auth::user()->id);
+        return parent::getEloquentQuery()->where('assigned_to', $user->id);
     }
+    
 
     public static function form(Form $form): Form
     {
@@ -106,7 +109,7 @@ class PlantResource extends Resource
             ->url(fn (Plant $record): string => route('filament.resources.plants.view', $record))
             ->icon('heroicon-o-external-link');  
     
-        if(Auth::user()->is_admin || Auth::user()->is_technician)
+        if(Auth::user()->is_admin)
             $actions[] = Tables\Actions\EditAction::make();
     
         // Filter records based on the authenticated user's owner_id
@@ -115,14 +118,12 @@ class PlantResource extends Resource
             ->columns([
                 TextColumn::make('name')->label('Name')->sortable()->searchable(),
                 TextColumn::make('owner.name')->label('Owner')->sortable()->searchable(),
+                TextColumn::make('customer.name')->label('Customer')->sortable()->searchable(),
                 TextColumn::make('state')->label('State')->sortable()->searchable(),
                 TextColumn::make('city')->label('City')->sortable()->searchable(),
                 TextColumn::make('address')->label('Address')->sortable()->searchable(),
                 TextColumn::make('cap')->label('CAP')->sortable()->searchable(),
             ])
-            // ->query(fn ($query) => $query->whereHas('owner', function ($subquery) use ($ownerId) {
-            //     $subquery->where('id', $ownerId);
-            // })) 
             ->filters([
                 //
             ])
@@ -166,6 +167,12 @@ class PlantResource extends Resource
             'view' => Pages\ViewPlant::route('/{record}/view'),
             'board' => Pages\CreateBoard::route('/{record}/create-board'),
         ];
+    }
+
+    public static function canViewAny(): bool
+    {
+    
+        return true;
     }
     
     

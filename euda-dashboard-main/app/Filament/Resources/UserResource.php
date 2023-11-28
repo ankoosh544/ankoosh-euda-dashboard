@@ -55,7 +55,7 @@ class UserResource extends Resource
                 
                 Toggle::make('is_technician')
                     ->inline()
-                    ->label('Technician')
+                    ->label('Customer')
                     ->hidden(false)
                     ->id('is_superuser_toggle'),
                 
@@ -99,6 +99,6 @@ class UserResource extends Resource
 
     public static function canViewAny(): bool
     {
-        return Auth::user()->is_admin || Auth::user()->is_technician;
+        return Auth::user()->is_admin;
     }
 }

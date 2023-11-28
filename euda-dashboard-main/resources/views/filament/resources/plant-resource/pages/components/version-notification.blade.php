@@ -4,7 +4,10 @@
                 <span class="relative inline-flex rounded-full h-3 w-3 bg-red-500"></span>
         </span>
         Software Update is Available {{$thing_type}} with version {{ $version }}
+            @if($admin)
             <a href="{{ url('/admin/jobs/create') }}" class="bg-green-100 px-4 py-1 rounded-md text-sm font-semibold text-green-800 w-fit">
                 Update
             </a>
+            @endif
+           
  </div>

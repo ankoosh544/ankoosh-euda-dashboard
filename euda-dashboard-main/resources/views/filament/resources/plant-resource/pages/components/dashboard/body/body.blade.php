@@ -10,15 +10,17 @@
             </div>
             <div class="flex flex-col gap-2">
                 @include('filament.resources.plant-resource.pages.components.dashboard.body.components.safety-test-panel',['data' => $data])
-                @include('filament.resources.plant-resource.pages.components.dashboard.body.components.remote-reset', ['data' => $data])
+                @if(Auth::user()->is_admin)
+                    @include('filament.resources.plant-resource.pages.components.dashboard.body.components.remote-reset', ['data' => $data])
+                @endif
             </div>
             
         </div>
-        <div class="flex xl:flex-row flex-col gap-2">
-             
-            @include('filament.resources.plant-resource.pages.components.dashboard.body.components.remote-command', ['data' => $data])
-            
-        </div>
+        @if(Auth::user()->is_admin)
+            <div class="flex xl:flex-row flex-col gap-2">  
+                @include('filament.resources.plant-resource.pages.components.dashboard.body.components.remote-command', ['data' => $data])
+            </div>
+        @endif
         <div class="flex xl:flex-row flex-col gap-2">
 
                 @include('filament.resources.plant-resource.pages.components.dashboard.body.components.car-millage', ['data' => $data])

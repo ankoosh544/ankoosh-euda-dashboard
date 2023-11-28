@@ -25,6 +25,12 @@ foreach ($latestUploads as $key => $latestUpload) {
     }
    // dd($noversionFound);die();
 }
+if (Auth::check() && Auth::user()->is_admin) {
+    $admin = true;
+} else {
+    $admin = false;
+
+}
 
 ?>
 
@@ -38,14 +44,14 @@ foreach ($latestUploads as $key => $latestUpload) {
         @foreach ($noversionFound as $upload)
                 @if ($upload['thing_type'] == 'icud' )
                     
-                    @include('filament.resources.plant-resource.pages.components.version-notification',['version' => $upload['version'], 'thing_type' => $upload['thing_type']] )
+                    @include('filament.resources.plant-resource.pages.components.version-notification',['version' => $upload['version'], 'thing_type' => $upload['thing_type'],'admin' => $admin] )
                 @endif
                 @if ($upload['thing_type'] == 'hufd')
-                    @include('filament.resources.plant-resource.pages.components.version-notification',['version' => $upload['version'], 'thing_type' => $upload['thing_type']] )
+                    @include('filament.resources.plant-resource.pages.components.version-notification',['version' => $upload['version'], 'thing_type' => $upload['thing_type'],'admin' => $admin] )
                    
                 @endif
                 @if ($upload['thing_type'] == 'uicd')
-                    @include('filament.resources.plant-resource.pages.components.version-notification',['version' => $upload['version'], 'thing_type' => $upload['thing_type']] )
+                    @include('filament.resources.plant-resource.pages.components.version-notification',['version' => $upload['version'], 'thing_type' => $upload['thing_type'],'admin' => $admin] )
                 @endif
         @endforeach
     @else

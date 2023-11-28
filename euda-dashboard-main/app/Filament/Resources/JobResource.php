@@ -164,6 +164,7 @@ class JobResource extends Resource
             ])
             ->bulkActions([
                 Tables\Actions\DeleteBulkAction::make()
+             
                 ->before(function ($records) {
                   static::deleteCloudRecord($records);
                 }),
@@ -188,6 +189,7 @@ class JobResource extends Resource
     
     protected static function deleteCloudRecord($records)
     {
+
         $iotClient = new IotClient([
             'version' => 'latest',
             'region' => env('AWS_DEFAULT_REGION'),
@@ -198,6 +200,9 @@ class JobResource extends Resource
         ]);
 
         foreach ($records as $record) {
+            if($record['job_id'] == null){
+                return;
+            }
             $thingType = strtolower($record['thing_type']);
             $plantId = $record['plantId'];
             //dd($thingType, $plantId, $record['job_id']);die();
@@ -224,5 +229,10 @@ class JobResource extends Resource
         ]);
     
         return $result['jobs'];
+    }
+
+    public static function canViewAny(): bool
+    {
+        return Auth::user()->is_admin;
     }
 }

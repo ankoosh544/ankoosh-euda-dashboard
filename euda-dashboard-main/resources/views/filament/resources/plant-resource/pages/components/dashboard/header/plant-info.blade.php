@@ -1,3 +1,4 @@
+
 <div class="flex items-center space-x-4">
     <div
         class="bg-gradient-to-r from-cyan-500 to-blue-500 h-24 w-24 flex justify-center items-center rounded-full">
@@ -34,6 +35,12 @@
                 </svg>
                 {{ $record->city . ', ' . $record->state }}
             </li>
+            @if(Auth::user()->is_admin)
+                <a href="{{ url('/sendPlantId?plantId=' . $record->plant_id) }}" class="block mt-3 px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 focus:outline-none focus:ring focus:ring-indigo-200">
+                    Send PlantId
+                    </a>
+            @endif
         </ul>
     </div>
+   
 </div>

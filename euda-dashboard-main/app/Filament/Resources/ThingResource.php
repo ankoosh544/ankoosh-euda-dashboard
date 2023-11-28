@@ -133,7 +133,7 @@ class ThingResource extends Resource
     protected static function deleteCloudRecord($records)
     {
 
-        dd($records);die();
+    
         $iotClient = new IotClient([
             'version' => 'latest',
             'region' => env('AWS_DEFAULT_REGION'),
@@ -229,5 +229,10 @@ class ThingResource extends Resource
            
             
         ];
-    }    
+    }  
+    
+    public static function canViewAny(): bool
+    {
+        return Auth::user()->is_admin;
+    }
 }

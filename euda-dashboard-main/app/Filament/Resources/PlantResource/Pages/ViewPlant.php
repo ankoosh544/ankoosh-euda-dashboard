@@ -108,8 +108,7 @@ class ViewPlant extends EditRecord
             // Handle the case where no matching record is found
             $this->versionInstalled = 'null';
         }
-      
-        //dd($messagesData);die();    
+         
             $erm =  Command::whereDate('created_at', $this->selectedDate)->whereNotNull('ERM')->where('plantId', $this->record->plant_id)->get();
             $err =  Command::whereDate('created_at', $this->selectedDate) ->whereNotNull('ERR')->where('ERR', true)->where('plantId', $this->record->plant_id)->get();
             $lastErm = Command::whereDate('created_at', $this->selectedDate)
@@ -157,22 +156,24 @@ class ViewPlant extends EditRecord
         foreach ($messages as $k => $data) {
 
             $data->FCN = json_decode($data->FCN);
-        
+            
             foreach ($eventData as $event) {
                 $eventIUPS = json_decode($event->IUPS, true);
-               // dd($eventIUPS);die();
-            
+                $this->IUPS = $eventIUPS;
                 if (is_array($eventIUPS) && array_key_exists('f', $eventIUPS) && is_numeric($eventIUPS['f'])) {
                     $index = (int) $eventIUPS['f'] - 1;
             
                     if ($index >= 0 && $index < count($data->FCN)) {
                         $data->FCN[$index]++;
                     }
-                }else{
-                   $this->IUPS = $data->IUPS;
-
                 }
+                
             }
+            if($this->IUPS == null){
+                $this->IUPS = $data->IUPS;
+            }
+           
+            //dd($this->IUPS);die();
             $this->FCN = $data->FCN;
             //dd($this->FCN);die();
             // $this->AC = $data->event->AC;
@@ -189,6 +190,7 @@ class ViewPlant extends EditRecord
             $this->CAM = $data->CAM/1000;
             $this->DON =$data->DON;
             $this->lastcommunication = $data->event ? formatDate($data->event->updated_at) : formatDate($data->updated_at);
+
             if (!$awsObject) {
                 $awsObject = (object)[
                     'id' => $data->id,
@@ -243,8 +245,8 @@ class ViewPlant extends EditRecord
                     $awsObject->FCN[$key] += $value;
                 }
                 $awsObject->CAM += $data->CAM/1000;
-                $awsObject->DON = $data->DON;
-                $awsObject->rides = $data->rides;
+                $awsObject->DON += $data->DON;
+                $awsObject->rides += $data->rides;
                 $awsObject->sequence = $data->sequence;
                 $awsObject->created_at = $data->created_at;
                 $awsObject->updated_at = $data->updated_at;  
