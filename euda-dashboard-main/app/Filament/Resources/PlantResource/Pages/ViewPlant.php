@@ -132,6 +132,7 @@ class ViewPlant extends EditRecord
             ->where('plantId', $this->record->plant_id)
             ->latest('created_at')
             ->get();
+         //dd($eventData);die();   
 
             $this->totalDoorFault = 0;
             $this->totalOutService = 0;
@@ -252,7 +253,7 @@ class ViewPlant extends EditRecord
                 $awsObject->updated_at = $data->updated_at;  
             }
         }
-        
+     //dd($this->alarms);die();
         //dd($this->totalOutService);die();
         return json_encode($awsObject);
     }

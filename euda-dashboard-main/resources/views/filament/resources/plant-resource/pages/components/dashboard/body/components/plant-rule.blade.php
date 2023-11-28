@@ -54,7 +54,7 @@
                         <option value="event">Event</option>
                         <!-- Add more topics as needed -->
                     </select>
-                    <input type="hidden" name="plantId" value="{{ $data->plantId }}">
+                    <input type="hidden" name="plantId" value="{{ $data->plant_id }}">
                     <button type="submit" class="mt-3 px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 focus:outline-none focus:ring focus:ring-indigo-200">Create Rule</button>
                 </form>
             </div>
@@ -89,7 +89,7 @@
                             @endforeach
                         </select>
                     </div>
-                    <input type="hidden" name="plantId" value="{{ $data->plantId }}">
+                    <input type="hidden" name="plantId" value="{{ $data->plant_id }}">
                     <button type="submit" class="mt-3 px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 focus:outline-none focus:ring focus:ring-indigo-200">
                         Trigger
                     </button>

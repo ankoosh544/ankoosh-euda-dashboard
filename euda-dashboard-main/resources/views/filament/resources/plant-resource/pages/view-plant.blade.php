@@ -54,7 +54,7 @@
         </div>
         @if($admin)        
         <div class="w-full">
-            @include('filament.resources.plant-resource.pages.components.dashboard.body.components.plant-rule', ['data' => $data, 'iups' => $DFD[1],  'dfd' => !empty($DFD[0]) ? $DFD[0] : ($data->DFD ?? $data->event->DFD), ])
+            @include('filament.resources.plant-resource.pages.components.dashboard.body.components.plant-rule', ['data' => $record, ])
         </div>
         @endif
        

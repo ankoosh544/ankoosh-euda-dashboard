@@ -17,5 +17,10 @@
             </div>
         </div>
     </div>
+    @if(Auth::user()->is_admin)
+        <div class="w-full">
+            @include('filament.resources.plant-resource.pages.components.dashboard.body.components.plant-rule', ['data' => $record, ])
+        </div>
+    @endif
     @livewireChartsScripts
 </x-filament::page>
