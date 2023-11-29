@@ -115,7 +115,7 @@ class CreateThing extends CreateRecord
                 ],
             ]);
 
-            $datetime = now()->format('Y-m-d H:i:s');
+            $datetime = now()->format('Y-m-d');
             $datetimeForS3Key = str_replace([' ', ':'], ['_', '-'], $datetime);
             $s3Key = "certificates/{$datetimeForS3Key}/{$zipFileName}";
 

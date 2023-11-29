@@ -71,10 +71,10 @@ return [
     | This will be displayed on the login page and in the sidebar's header.
     |
     */
-
+    'brand' => env('APP_NAME', "Mcallin Italia Srl"),
     // 'brand' => [
     //     'name' => htmlspecialchars((string)env('LOGO_NAME', 'Your Default App Name')),
-    //     'logo' => htmlspecialchars((string)env('LOGO_URL', 'http://127.0.0.1:8000/public/assets/images/mcallinn.png')),
+    //     'logo' => htmlspecialchars((string)env('LOGO_URL', 'http://127.0.0.1:8000/public/images/mcallinn.png')),
     // ],
     
     

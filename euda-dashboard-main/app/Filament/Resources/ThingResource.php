@@ -144,64 +144,61 @@ class ThingResource extends Resource
         ]);
 
         foreach ($records as $record) {
-            $thingType = strtolower($record['thing_type']);
+            $thingName = $record['thing_name'];
             $plantId = $record['plantId'];
-            //dd($thingType, $plantId, $record['job_id']);die();
-            if($record['status' != "CANCELED"]){
-                $iotClient->cancelJob([
-                    'jobId' => $record['job_id'],
-                ]);
-            }
-           
-            $iotClient->deleteJob([
-                'jobId' => $record['job_id'],
+        
+        
+            // Detach thing from principals
+            $principals = $iotClient->listThingPrincipals([
+                'thingName' => $thingName,
             ]);
         
+            foreach ($principals['principals'] as $principal) {
+                $iotClient->detachThingPrincipal([
+                    'thingName' => $thingName,
+                    'principal' => $principal,
+                ]);
+            }
+        
+            // Delete the IoT thing
+            $iotClient->deleteThing([
+                'thingName' => $thingName,
+            ]);
         }
+        
     }
 
-    // public function downloadAction(Thing $record)
-    // {
-
-    //    // dd($record);die();
-    //     dd($record);die();
-    //     // if (Storage::disk('public')->exists($filePath)) {
-    //     //     // Provide a proper response to initiate the file download
-    //     //     return response()->download(Storage::disk('public')->path($filePath), $record->thing_name . '-certificates.zip');
-    //     // } else {
-    //     //     // Handle the case where the file does not exist
-    //     //     return response()->json(['error' => 'File not found'], 404);
-    //     // }
-    //     // $filePath = str_replace('/', '\\', $record->certificates_file_path);
-    //     //dd($filePath);die();
-    //     //$filePath = realpath($filePath);
-
-    //     //dd($filePath);die();
-
-    //     //dd($filePath);die();
-    //     // Check if the file exists
-    //     // if (file_exists($filePath)) {
-    //     //     // Provide a proper response to initiate the file download
-    //     //     return response()->download($filePath, $record->thing_name);
-    //     // } else {
-    //     //     // Handle the case where the file does not exist
-    //     //     return response()->json(['error' => 'File not found'], 404);
-    //     // }
-    // }
-   
-
+  
     public function downloadAction(Thing $record)
     {
+      
         // Use the stored relative file path from the database
         $relativePath = $record->file_name;
     
-        // Use the Storage facade to generate the correct file path
-        $filePath = Storage::disk('public')->path($relativePath);
-    
-        // Check if the file exists using the Storage facade
-        if (file_exists($filePath)) {
-            // Return the file as a response for download
-            return response()->download($filePath);
+        // Specify your S3 bucket name
+        $bucketName = 'bucketmcallinn';
+        $datetime = now()->format('Y-m-d');
+        // Use the Storage facade to generate the correct S3 file path
+        $s3Path = "certificates/$datetime/{$relativePath}"; // Adjust the path as needed
+
+        // Create an instance of the S3 client
+        $s3 = new S3Client([
+            'region' => env('AWS_DEFAULT_REGION'),
+            'version' => 'latest',
+            'credentials' => [
+                'key' => env('AWS_ACCESS_KEY_ID'),
+                'secret' => env('AWS_SECRET_ACCESS_KEY'),
+            ],
+        ]);
+
+        // Check if the file exists in S3
+        if ($s3->doesObjectExist($bucketName, $s3Path)) {
+           
+            // Generate a pre-signed URL for the S3 file
+            $url = $s3->getObjectUrl($bucketName, $s3Path);
+
+            // Redirect the user to the pre-signed URL for download
+            return redirect($url);
         } else {
             // If the file is not found, return a JSON response with a 404 status
             return response()->json(['error' => 'File not found'], 404);
