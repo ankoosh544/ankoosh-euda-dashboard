@@ -24,11 +24,7 @@ use App\Models\Plant;
 use Illuminate\Foundation\Auth\User;
 use Illuminate\Support\Facades\Auth;
 use Filament\Tables\Columns\TextColumn;
-use App\Filament\Resources\Components\DownloadCertificatesButton;
 use Filament\Tables\Actions\Action;
-use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Str;
-use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 
 class ThingResource extends Resource
@@ -177,7 +173,7 @@ class ThingResource extends Resource
     
         // Specify your S3 bucket name
         $bucketName = 'bucketmcallinn';
-        $datetime = now()->format('Y-m-d');
+        $datetime = $record['created_at']->format('Y-m-d');
         // Use the Storage facade to generate the correct S3 file path
         $s3Path = "certificates/$datetime/{$relativePath}"; // Adjust the path as needed
 

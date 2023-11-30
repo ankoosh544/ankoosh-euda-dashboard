@@ -9,6 +9,9 @@
 
         <title>{{ config('app.name') }}</title>
 
+        <!-- Add this line to include the favicon -->
+        <link rel="icon" href="{{ asset('images/favicon.ico') }}" type="image/x-icon">
+
         <style>
             [x-cloak] {
                 display: none !important;
