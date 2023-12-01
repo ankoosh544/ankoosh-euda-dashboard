@@ -42,7 +42,7 @@ class ViewPlant extends EditRecord
     public $lastDoorFaultFloor;
     public $FCN;
     public $DFD;
-    public $IUPS;
+    public $currentFloor;
     public $AC;
     public $BAT;
     public $CLS;
@@ -135,64 +135,37 @@ class ViewPlant extends EditRecord
             ->where('plantId', $this->record->plant_id)
             ->latest('created_at')
             ->first();
-       // dd($eventData);die();   
-
-            $this->totalDoorFault = 0;
-            $this->totalOutService = 0;
-            foreach ($eventData as $event) {
-                $DFDArray = json_decode($event->DFD, true);
-               if (is_array($DFDArray) && !empty($DFDArray) && count(array_filter($DFDArray, function($value) { return $value !== 0; })) > 0) {
-                    foreach ($DFDArray as $key => $value) {
-                        if ($value == 2) {
-                            //dd($value, $key, $DFDArray);die();
-                            $this->totalDoorFault++;
-                            $this->lastDoorFaultFloor = $key;
-                            $this->lastDoorFault = $event->created_at; // Assuming created_at is the time you want
-                        }
-                    }
-                }
-                if($event->OOS == 1){
-                    $this->totalOutService++;
-                    $this->lastOutService = $event->created_at;
-                }
-            }
-            $eventIUPS = json_decode($lastEvent->IUPS, true);
-            $this->IUPS = $eventIUPS;
-        
+    
         foreach ($messages as $k => $data) {
-            $data->FCN = json_decode($data->FCN);
-            foreach ($eventData as $event) {
-                if (is_array($eventIUPS) && array_key_exists('f', $eventIUPS) && is_numeric($eventIUPS['f'])) {
-                    $index = (int) $eventIUPS['f'] - 1;
-                    if ($index >= 0 && $index < count($data->FCN)) {
-                        $data->FCN[$index]++;
-                    }
-                }   
-            }
-            dd($data->FCN);die();
 
-            if($this->IUPS == null){
-                $this->IUPS = $data->IUPS;
-            }
-          
-           
-            //dd($this->IUPS);die();
-            $this->FCN = $data->FCN;
-            //dd($this->FCN);die();
-            // $this->AC = $data->event->AC;
-            // $this->BAT = $data->event->BAT;
-            // $this->CLS = $data->event->CLS;
-            $this->statusCheck($data->event && $data->event->OOS ? $data->event->OOS : $data->OOS);
-           
-            $this->alarms = [
-                "AC" => $data->event && property_exists($data->event, 'AC') ? $data->event->AC : $data->AC,
-                "BAT" => $data->event && property_exists($data->event, 'BAT') ? $data->event->BAT : $data->BAT,
-                "CLS" => $data->event && property_exists($data->event, 'CLS') ? $data->event->CLS : true,
-                "OOS" => $data->event && property_exists($data->event, 'OOS') ? $data->event->OOS : $data->OOS
-            ];
-            $this->CAM = $data->CAM/1000;
-            $this->DON =$data->DON;
-            $this->lastcommunication = $data->event ? formatDate($data->event->updated_at) : formatDate($data->updated_at);
+                if($lastEvent != null){
+                    $eventIUPS = json_decode($lastEvent->IUPS, true);
+                    $this->currentFloor = $eventIUPS->f;
+
+                }else{
+                    $this->currentFloor = json_decode($data->IUPS)->f;
+                }
+
+                $data->FCN = json_decode($data->FCN);
+                foreach ($eventData as $event) {
+                    if (is_array($eventIUPS) && array_key_exists('f', $eventIUPS) && is_numeric($eventIUPS['f'])) {
+                        $index = (int) $eventIUPS['f'] - 1;
+                        if ($index >= 0 && $index < count($data->FCN)) {
+                            $data->FCN[$index]++;
+                        }
+                    }   
+                }
+                $this->FCN = $data->FCN;
+                $this->statusCheck($data->event && $data->event->OOS ? $data->event->OOS : $data->OOS);
+                $this->alarms = [
+                    "AC" => $data->event && property_exists($data->event, 'AC') ? $data->event->AC : $data->AC,
+                    "BAT" => $data->event && property_exists($data->event, 'BAT') ? $data->event->BAT : $data->BAT,
+                    "CLS" => $data->event && property_exists($data->event, 'CLS') ? $data->event->CLS : true,
+                    "OOS" => $data->event && property_exists($data->event, 'OOS') ? $data->event->OOS : $data->OOS
+                ];
+                $this->CAM = $data->CAM/1000;
+                $this->DON =$data->DON;
+                $this->lastcommunication = $data->event ? formatDate($data->event->updated_at) : formatDate($data->updated_at);
 
             if (!$awsObject) {
                 $awsObject = (object)[
@@ -231,8 +204,7 @@ class ViewPlant extends EditRecord
                 }
                
                 $this->DFD = [
-                    $data->event->DFD ?? $awsObject->DFD,
-                    $this->IUPS
+                    $data->event->DFD ?? $awsObject->DFD
                 ];
                
            
@@ -257,8 +229,31 @@ class ViewPlant extends EditRecord
                 $awsObject->updated_at = $data->updated_at;  
             }
         }
-     //dd($this->alarms);die();
-        //dd($this->totalOutService);die();
+
+        $this->totalDoorFault = 0;
+        $this->totalOutService = 0;
+        if($eventData->isNotEmpty()){
+            foreach ($eventData as $event) {
+                $DFDArray = json_decode($event->DFD, true);
+               if (is_array($DFDArray) && !empty($DFDArray) && count(array_filter($DFDArray, function($value) { return $value !== 0; })) > 0) {
+                    foreach ($DFDArray as $key => $value) {
+                        if ($value == 2) {
+                            //dd($value, $key, $DFDArray);die();
+                            $this->totalDoorFault++;
+                            $this->lastDoorFaultFloor = $key;
+                            $this->lastDoorFault = $event->created_at; // Assuming created_at is the time you want
+                        }
+                    }
+                }
+                if($event->OOS == 1){
+                    $this->totalOutService++;
+                    $this->lastOutService = $event->created_at;
+                }
+            }
+        }else{
+            $this->FCN = $awsObject->FCN;
+            
+        }
         return json_encode($awsObject);
     }
 

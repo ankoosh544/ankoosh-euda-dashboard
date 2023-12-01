@@ -128,14 +128,6 @@ class S3Monitor extends Command
                             'status' => $jobStatus
                         ]);
                 } 
-                // else {
-                //     \DB::table('jobs')->insert([
-                //         'job_id' => $jobId,
-                //         'status' => $jobStatus,
-                //         'thing_type' => $thingType,
-                //         'version_number' => $version
-                //     ]);
-                // }
             }
         } catch (\Exception $e) {
             $this->error('Error while monitoring IoT jobs: ' . $e->getMessage());

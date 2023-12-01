@@ -5,9 +5,10 @@ use Illuminate\Support\Facades\Cache;
 $latestUploads = Cache::get('latestUploads', []);
 
 $versionInstalled = Cache::get('versionInstalled', []);
+
 //dd($versionInstalled);die();
 
-$records = [];
+//$records = [];
 $noversionFound = [];
 foreach ($latestUploads as $key => $latestUpload) {
 
@@ -31,7 +32,7 @@ if (Auth::check() && Auth::user()->is_admin) {
     $admin = false;
 
 }
-
+//dd($noversionFound);die();
 ?>
 
 <header class="filament-header space-y-2 items-start justify-between sm:flex sm:space-y-0 sm:space-x-4 sm:rtl:space-x-reverse sm:py-4">
@@ -41,18 +42,8 @@ if (Auth::check() && Auth::user()->is_admin) {
         </h1>
     </div>
     @if(!empty($noversionFound))
-        @foreach ($noversionFound as $upload)
-                @if ($upload['thing_type'] == 'icud' )
-                    
-                    @include('filament.resources.plant-resource.pages.components.version-notification',['version' => $upload['version'], 'thing_type' => $upload['thing_type'],'admin' => $admin] )
-                @endif
-                @if ($upload['thing_type'] == 'hufd')
-                    @include('filament.resources.plant-resource.pages.components.version-notification',['version' => $upload['version'], 'thing_type' => $upload['thing_type'],'admin' => $admin] )
-                   
-                @endif
-                @if ($upload['thing_type'] == 'uicd')
-                    @include('filament.resources.plant-resource.pages.components.version-notification',['version' => $upload['version'], 'thing_type' => $upload['thing_type'],'admin' => $admin] )
-                @endif
+        @foreach ($noversionFound as $upload)   
+            @include('filament.resources.plant-resource.pages.components.version-notification',['version' => $upload['version'], 'thing_type' => $upload['thing_type'],'admin' => $admin] )
         @endforeach
     @else
         

@@ -3,7 +3,7 @@
  
     $data = json_decode($awsData);
     //dd($data->IUPS->f);die();
-    //dd($IUPS);die();
+    //dd($IUPS, $IUPS['f']);die();
     //dd($DFD);die();
     //dd($versionInstalled);die();
     $floorChart = new \Asantibanez\LivewireCharts\Models\RadarChartModel();
@@ -50,7 +50,7 @@
             
         </div>
         <div class="w-full">
-            @include('filament.resources.plant-resource.pages.components.dashboard.footer.floor-status', ['data' => $data, 'iups' => $DFD[1],  'dfd' => !empty($DFD[0]) ? $DFD[0] : ($data->DFD ?? $data->event->DFD), ])
+            @include('filament.resources.plant-resource.pages.components.dashboard.footer.floor-status', ['data' => $data, 'currentFloor' => $currentFloor,  'dfd' => !empty($DFD) ? $DFD : ($data->DFD ?? $data->event->DFD), ])
         </div>
         @if($admin)        
         <div class="w-full">

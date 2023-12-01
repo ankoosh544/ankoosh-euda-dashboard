@@ -10,8 +10,8 @@
        
             @php    
                 
-                $iups = (array) $iups;
-                //dd($iups);die();
+                
+                //dd($currentFloor);die();
                 //$floor = (array) $floor; 
                 //dd($floor);die();
                 //dd($data->IUPS->f);die();
@@ -22,7 +22,7 @@
                 <div
                     class="group/doorFault relative cursor-default flex items-center text-xs font-bold text-red-800 w-fit bg-red-100 rounded-md px-2 py-0.5">
                     <span class="relative flex h-2 w-2 mr-2">
-                        @if ($k == $iups['f'])
+                        @if ($k == $currentFloor)
                         <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-gray-800 opacity-75"></span>
                         <span class="relative inline-flex rounded-full h-2 w-2 bg-gray-800"></span>
                         @else
@@ -36,7 +36,7 @@
                         class="hidden group-hover/doorFault:block absolute top-6 left-0 px-4 py-2 bg-white 
                             shadow border rounded-lg border-slate-200 dark:border-gray-600 dark:bg-gray-700
                             text-gray-700 dark:text-gray-200 font-normal w-max">
-                            @if ( $loop->index == $iups['f'])
+                            @if ( $loop->index == $currentFloor)
                                 <div class="thick-circle">This is Current Car Position and Problem with the door locking</div>
 
                                 @else
@@ -48,7 +48,7 @@
                 <div
                     class="group/doorFault relative cursor-default flex items-center text-xs font-bold text-yellow-800 w-fit bg-yellow-100 rounded-md px-2 py-0.5">
                     <span class="relative flex h-2 w-2 mr-2">
-                    @if ($loop->index == $iups['f'])
+                    @if ($loop->index == $currentFloor)
                     <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-gray-800 opacity-75"></span>
                         <span class="relative inline-flex rounded-full h-2 w-2 bg-gray-600"></span>
                     @else
@@ -62,7 +62,7 @@
                         class="hidden group-hover/doorFault:block absolute top-6 left-0 px-4 py-2 bg-white 
                                 shadow border rounded-lg border-slate-200 dark:border-gray-600 dark:bg-gray-700
                                 text-gray-700 dark:text-gray-200 font-normal w-max">
-                                @if ( $loop->index == $iups['f'])
+                                @if ( $loop->index == $currentFloor)
                                 <div class="thick-circle">This is Current Car Position and Problem with the door locking</div>
 
                                 @else
@@ -74,7 +74,7 @@
                 <div
                     class="group/doorFault relative cursor-default flex items-center text-xs font-bold text-green-800 w-fit bg-green-100 rounded-md px-2 py-0.5">
                     <span class="relative flex h-2 w-2 mr-2">
-                    @if ($loop->index == $iups['f'])
+                    @if ($loop->index == $currentFloor)
                         <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-gray-800 opacity-75"></span>
                         <span class="relative inline-flex rounded-full h-2 w-2 bg-gray-800"></span>
                     @else
@@ -87,7 +87,7 @@
                         class="hidden group-hover/doorFault:block absolute top-6 left-0 px-4 py-2 bg-white 
                                 shadow border rounded-lg border-slate-200 dark:border-gray-600 dark:bg-gray-700
                                 text-gray-700 dark:text-gray-200 font-normal w-max">
-                                @if ( $loop->index == $iups['f'])
+                                @if ( $loop->index == $currentFloor)
                                     <div class="thick-circle">This is Current Car Position and No problems detected</div>
                                 @else
                                     No problems detected

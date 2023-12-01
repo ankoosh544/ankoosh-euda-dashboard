@@ -72,14 +72,8 @@ return [
     |
     */
     'brand' => env('APP_NAME', "Mcallin Italia Srl"),
-    // 'brand' => [
-    //     'name' => htmlspecialchars((string)env('LOGO_NAME', 'Your Default App Name')),
-    //     'logo' => htmlspecialchars((string)env('LOGO_URL', 'http://127.0.0.1:8000/public/images/mcallinn.png')),
-    // ],
-    
-    
-    
 
+    
     /*
     |--------------------------------------------------------------------------
     | Auth
@@ -312,6 +306,7 @@ return [
     */
 
     'google_fonts' => 'https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,700;1,400;1,500;1,700&display=swap',
+
 
     /*
     |--------------------------------------------------------------------------
