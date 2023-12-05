@@ -6,25 +6,23 @@ $latestUploads = Cache::get('latestUploads', []);
 
 $versionInstalled = Cache::get('versionInstalled', []);
 
-//dd($versionInstalled);die();
+//dd($latestUploads);die();
 
-//$records = [];
+$records = [];
 $noversionFound = [];
+$versions =[];
 foreach ($latestUploads as $key => $latestUpload) {
-
     $record = Job::where('version_number', $latestUpload['version'])
     ->where('thing_type', $latestUpload['thing_type'])
     ->whereIn('status', ['IN_PROGRESS', 'Queued','COMPLETED' ])
     ->where('plantId', $plant->plant_id)
     ->where('status', '!=', 'CANCELED')
     ->first();
-    if ($record) {
-        $records[] = $record;
-    }else {
-       // dd($latestUpload);die();
-        $noversionFound[] = $latestUpload;
-    }
-   // dd($noversionFound);die();
+        if ($record) {
+            $records[] = $record;
+        }else {
+            $noversionFound[] = $latestUpload;
+        }
 }
 if (Auth::check() && Auth::user()->is_admin) {
     $admin = true;
@@ -32,7 +30,7 @@ if (Auth::check() && Auth::user()->is_admin) {
     $admin = false;
 
 }
-//dd($noversionFound);die();
+//dd($records, $noversionFound, $latestUpload['version'], $latestUpload['thing_type']);die();
 ?>
 
 <header class="filament-header space-y-2 items-start justify-between sm:flex sm:space-y-0 sm:space-x-4 sm:rtl:space-x-reverse sm:py-4">
@@ -46,9 +44,7 @@ if (Auth::check() && Auth::user()->is_admin) {
             @include('filament.resources.plant-resource.pages.components.version-notification',['version' => $upload['version'], 'thing_type' => $upload['thing_type'],'admin' => $admin] )
         @endforeach
     @else
-        
         @include('filament.resources.plant-resource.pages.components.uptodate-notification')
-
     @endif
 
     @if(!empty($records))

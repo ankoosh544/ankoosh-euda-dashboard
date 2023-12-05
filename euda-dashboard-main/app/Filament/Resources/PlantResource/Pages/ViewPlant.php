@@ -88,42 +88,17 @@ class ViewPlant extends EditRecord
     public function getData()
     {
      
-        $messagesData = State::whereDate('created_at', $this->selectedDate)
-            ->where('plantId', $this->record->plant_id)
-            ->with(['event' => function ($query) {
-                $query->whereDate('created_at', $this->selectedDate);
-            }])
-            ->get()
-            ->toJson();
-        $latestDebug = Debug::where('plantId', $this->record->plant_id)->latest()->first();
-
+        $messagesData =$this->getStates();
+        $latestDebug = $this->getLatestDebug();
         if ($latestDebug) {
-            $versionInstalled = $latestDebug->fwMajor.'.'.$latestDebug->fwMinor.'.'.$latestDebug->fwPatch;
-        
-           
-            cache(['versionInstalled' => $versionInstalled], );
-        
-            $this->versionInstalled = $versionInstalled;
-        } else {
-            // Handle the case where no matching record is found
-            $this->versionInstalled = 'null';
+            $this->setVersionInstalled($latestDebug);
         }
-         
-            $erm =  Command::whereDate('created_at', $this->selectedDate)->whereNotNull('ERM')->where('plantId', $this->record->plant_id)->get();
-            $err =  Command::whereDate('created_at', $this->selectedDate) ->whereNotNull('ERR')->where('ERR', true)->where('plantId', $this->record->plant_id)->get();
-            $lastErm = Command::whereDate('created_at', $this->selectedDate)
-                ->whereNotNull('ERM')
-                ->where('plantId', $this->record->plant_id)
-                ->latest() 
-                ->first(); 
-            $lastErr = Command::whereDate('created_at', $this->selectedDate)
-                ->whereNotNull('ERR')
-                ->where('ERR', true)
-                ->where('plantId', $this->record->plant_id)
-                ->latest() 
-                ->first();     
-            $ermCount = $erm->count();
-           
+        $erm = $this->getErmData();
+        $err = $this->getErrData();
+        $lastErm = $this->getLastErm();
+        $lastErr = $this->getLastErr();
+        $ermCount = $erm->count();
+
         $messages = json_decode($messagesData);
         if (empty($messages))
             return 0;
@@ -137,15 +112,13 @@ class ViewPlant extends EditRecord
             ->first();
     
         foreach ($messages as $k => $data) {
-
                 if($lastEvent != null){
                     $eventIUPS = json_decode($lastEvent->IUPS, true);
-                    $this->currentFloor = $eventIUPS->f;
+                    $this->currentFloor = $eventIUPS['f'];
 
                 }else{
                     $this->currentFloor = json_decode($data->IUPS)->f;
                 }
-
                 $data->FCN = json_decode($data->FCN);
                 foreach ($eventData as $event) {
                     if (is_array($eventIUPS) && array_key_exists('f', $eventIUPS) && is_numeric($eventIUPS['f'])) {
@@ -166,69 +139,54 @@ class ViewPlant extends EditRecord
                 $this->CAM = $data->CAM/1000;
                 $this->DON =$data->DON;
                 $this->lastcommunication = $data->event ? formatDate($data->event->updated_at) : formatDate($data->updated_at);
-
-            if (!$awsObject) {
-                $awsObject = (object)[
-                    'id' => $data->id,
-                    'plantId' => $data->plantId,
-                    'OOS' => $data->event && $data->event->OOS ? $data->event->OOS : $data->OOS,
-                    'OSN' => $data->OSN,
-                    'FCN' => $data->FCN,
-                    'CAM' => $data->CAM/1000,
-                    'STR' => $lastRecord->STR ?? 0,
-                    'totalSTR' => $this->totalSTR,
-                    'DFD' => json_decode($data->event->DFD ?? $data->DFN),
-                    'IUPS' => json_decode($data->event->IUPS ?? $data->IUPS),
-                    'DON' => $data->DON,
-                    'BAT' => $data->event->BAT ?? $data->BAT,
-                    'AC'  => $data->event->AC ?? $data->AC,
-                    'CLS' => $data->event->CLS ?? false,
-                    'rides' => $data->rides,
-                    'total_erm' =>  $ermCount,
-                    'lastErm_date' => $lastErm ? formatDate($lastErm->created_at) : $this->lastFSR,
-                    'total_err' => $err ? $err->count(): 0,
-                    'lastErr_date' => $lastErr ? formatDate($lastErr->created_at) : $this->lastFSR,
-                    'sequence' => $data->sequence,
-                    'created_at' => $data->event->created_at ?? $data->created_at,
-                    'updated_at' => $data->event ? formatDate($data->event->updated_at) : formatDate($data->updated_at),
-                ];
-                //dd($awsObject);die();
-                if ($awsObject->DFD === "[]") {
-                    // Convert the string representation of an empty array to an actual empty array
-                    $awsObject->DFD = [];
-                }
-                
-                if (empty($awsObject->DFD)) {
-                    // DFD is an empty array, add FCN array count with all 0 values
-                    $awsObject->DFD = array_fill(0, count($awsObject->FCN), 0);
-                }
-               
-                $this->DFD = [
-                    $data->event->DFD ?? $awsObject->DFD
-                ];
-               
-           
-
-                //dd($this->DFD);die();
-            } else {
-                $awsObject->OSN += $data->OOS;
-                if($k == count($messages)-1){
-                    //dd($data->OOS);die();
-                    $awsObject->OOS = $data->OSS ?? 0;
-                }
-                $fcnArray =$data->FCN;
+              
+                if (!$awsObject) {
+                    $awsObject = [
+                        'id' => $data->id,
+                        'plantId' => $data->plantId,
+                        'OOS' => $data->event && $data->event->OOS ? $data->event->OOS : $data->OOS,
+                        'OSN' => $data->OSN,
+                        'FCN' => $data->FCN,
+                        'CAM' => $data->CAM/1000,
+                        'STR' => $lastRecord->STR ?? 0,
+                        'totalSTR' => $this->totalSTR,
+                        'IUPS' => $data->IUPS,
+                        'DON' => $data->DON,
+                        'BAT' => $data->event->BAT ?? $data->BAT,
+                        'AC'  => $data->event->AC ?? $data->AC,
+                        'CLS' => $data->event->CLS ?? false,
+                        'rides' => $data->rides,
+                        'total_erm' =>  $ermCount,
+                        'lastErm_date' => $lastErm ? formatDate($lastErm['created_at']) : $this->lastFSR,
+                        'total_err' => $err ? $err->count(): 0,
+                        'lastErr_date' => $lastErr ? formatDate($lastErr['created_at']) : $this->lastFSR,
+                        'created_at' => $data->event->created_at ?? $data->created_at,
+                        'updated_at' => $data->event ? formatDate($data->event->updated_at) : formatDate($data->updated_at),
+                    ];
             
-                foreach ($fcnArray as $key => $value) {
-                    $awsObject->FCN[$key] += $value;
+                    if (empty($awsObject['DFD'])) {
+                        $awsObject['DFD'] = array_fill(0, count($awsObject['FCN']), 0);
+                    }
+                } else {
+                    
+                    $awsObject['OSN'] += $data->OOS;
+                    if($k == count($messages)-1){
+                        $awsObject['OOS'] = $data->OSS ?? 0;
+                    }
+            
+                    foreach ($data->FCN as $key => $value) {
+                        $awsObject['FCN'][$key] += $value;
+                    }
+            
+                    $awsObject['CAM'] += $data->CAM/1000;
+                    $awsObject['DON'] += $data->DON;
+                    $awsObject['rides'] += $data->rides;
+                    $awsObject['sequence'] = $data->sequence;
+                    $awsObject['created_at'] = $data->created_at;
+                    $awsObject['updated_at'] = $data->updated_at;  
                 }
-                $awsObject->CAM += $data->CAM/1000;
-                $awsObject->DON += $data->DON;
-                $awsObject->rides += $data->rides;
-                $awsObject->sequence = $data->sequence;
-                $awsObject->created_at = $data->created_at;
-                $awsObject->updated_at = $data->updated_at;  
+            
             }
-        }
 
         $this->totalDoorFault = 0;
         $this->totalOutService = 0;
@@ -250,12 +208,67 @@ class ViewPlant extends EditRecord
                     $this->lastOutService = $event->created_at;
                 }
             }
-        }else{
-            $this->FCN = $awsObject->FCN;
-            
+           
         }
+        $this->FCN = $awsObject['FCN'];
+
+        //dd($this->FCN);die();
         return json_encode($awsObject);
     }
+
+
+    private function getStates()
+    {
+        return State::whereDate('created_at', $this->selectedDate)
+            ->where('plantId', $this->record->plant_id)
+            ->with(['event' => function ($query) {
+                $query->whereDate('created_at', $this->selectedDate);
+            }])
+            ->get()
+            ->toJson();
+    }
+
+    private function getLatestDebug()
+    {
+        return Debug::where('plantId', $this->record->plant_id)->latest()->first();
+    }
+
+    private function getErmData()
+    {
+        return Command::whereDate('created_at', $this->selectedDate)
+            ->whereNotNull('ERM')
+            ->where('plantId', $this->record->plant_id)
+            ->get();
+    }
+
+    private function getErrData()
+    {
+        return Command::whereDate('created_at', $this->selectedDate)
+            ->whereNotNull('ERR')
+            ->where('ERR', true)
+            ->where('plantId', $this->record->plant_id)
+            ->get();
+    }
+
+    private function getLastErm()
+    {
+        return Command::whereDate('created_at', $this->selectedDate)
+            ->whereNotNull('ERM')
+            ->where('plantId', $this->record->plant_id)
+            ->latest()
+            ->first();
+    }
+
+    private function getLastErr()
+    {
+        return Command::whereDate('created_at', $this->selectedDate)
+            ->whereNotNull('ERR')
+            ->where('ERR', true)
+            ->where('plantId', $this->record->plant_id)
+            ->latest()
+            ->first();
+    }
+
 
 
 //     public function getData()
@@ -304,16 +317,7 @@ class ViewPlant extends EditRecord
 //         return json_encode($awsObject);
 //     }
 
-//     private function getStates()
-//     {
-//         return State::whereDate('created_at', $this->selectedDate)
-//             ->where('plantId', $this->record->plant_id)
-//             ->with(['event' => function ($query) {
-//                 $query->whereDate('created_at', $this->selectedDate);
-//             }])
-//             ->get()
-//             ->toJson();
-//     }
+    
 
 //     private function getEvents()
 //     {

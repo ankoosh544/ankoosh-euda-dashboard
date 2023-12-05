@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
 use Exception;
+use Filament\Notifications\Notification;
 
 class CreateJob extends CreateRecord
 {
@@ -25,6 +26,7 @@ class CreateJob extends CreateRecord
     
     protected function mutateFormDataBeforeCreate(array $data): array
     {
+
         $iotClient = new IotClient([
             'version' => 'latest',
             'region' => env('AWS_DEFAULT_REGION'),
@@ -59,7 +61,6 @@ class CreateJob extends CreateRecord
 
         if (count($selectedBoardTypes) > 0) {
             $targetList = [];
-
             foreach ($selectedBoardTypes as $boardType) {
                 $thingTypeName = strtolower($boardType);
 
@@ -116,10 +117,14 @@ class CreateJob extends CreateRecord
                 }
             }
         } else {
+            Notification::make()
+            ->title('Error: At least one board type must be selected.')
+            ->send();
+            return [];
             // Handle the case where no board type is selected
             echo "Error: At least one board type must be selected.";
         }
-        //dd($createdRecords, $data);die();
+        //dd($createdRecords);die();
         return $createdRecords;
     }
 
