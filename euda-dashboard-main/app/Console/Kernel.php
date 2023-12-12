@@ -14,6 +14,7 @@ class Kernel extends ConsoleKernel
     {
         // $schedule->command('inspire')->hourly();
         $schedule->command('app:s3-monitor')->everyTenSeconds();
+        $schedule->command('app:update-job-status')->everyMinute();
 
     }
 

@@ -22,6 +22,7 @@ use Filament\Forms\Components\Card;
 use App\Models\Plant;
 use Filament\Forms\Components\Select;
 use Illuminate\Foundation\Auth\User;
+use Filament\Pages\Actions\CreateAction;
 
 
 
@@ -161,6 +162,7 @@ class JobResource extends Resource
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
+
             ])
             ->bulkActions([
                 Tables\Actions\DeleteBulkAction::make()
@@ -169,6 +171,13 @@ class JobResource extends Resource
                   static::deleteCloudRecord($records);
                 }),
             ]);
+        CreateAction::make()
+            ->mutateFormDataUsing(function (array $data): array {
+                dd($data);die();
+                $data['user_id'] = auth()->id();
+        
+                return $data;
+            });
     }
     
     public static function getRelations(): array
@@ -203,18 +212,24 @@ class JobResource extends Resource
             if($record['job_id'] == null){
                 return;
             }
-            $thingType = strtolower($record['thing_type']);
-            $plantId = $record['plantId'];
-            //dd($thingType, $plantId, $record['job_id']);die();
-            if($record['status' != "CANCELED"]){
-                $iotClient->cancelJob([
+           
+            if($record['status'] != "DELETION_IN_PROGRESS"){
+                $thingType = strtolower($record['thing_type']);
+                $plantId = $record['plantId'];
+                if($record['status'] != "CANCELED"){
+                    $iotClient->cancelJob([
+                        'jobId' => $record['job_id'],
+                        'force' => true,
+                    ]);
+                }
+            
+                $iotClient->deleteJob([
                     'jobId' => $record['job_id'],
+                    'force' => true,
                 ]);
+                
             }
            
-            $iotClient->deleteJob([
-                'jobId' => $record['job_id'],
-            ]);
         
         }
     }

@@ -269,6 +269,12 @@ class ViewPlant extends EditRecord
             ->first();
     }
 
+    private function setVersionInstalled()
+    {
+        $latestDebug = Debug::where('plantId', $this->record->plant_id)->latest()->first();
+        $this->versionInstalled = $latestDebug ? $latestDebug->fwMajor.'.'.$latestDebug->fwMinor.'.'.$latestDebug->fwPatch : 'null';
+    }
+
 
 
 //     public function getData()
@@ -331,11 +337,7 @@ class ViewPlant extends EditRecord
 //         return Debug::where('plantId', $this->record->plant_id)->latest()->first();
 //     }
 
-//     private function setVersionInstalled()
-//     {
-//         $latestDebug = Debug::where('plantId', $this->record->plant_id)->latest()->first();
-//         $this->versionInstalled = $latestDebug ? $latestDebug->fwMajor.'.'.$latestDebug->fwMinor.'.'.$latestDebug->fwPatch : 'null';
-//     }
+   
 //     private function getErmData()
 //     {
 //         return Command::whereDate('created_at', $this->selectedDate)

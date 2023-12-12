@@ -123,6 +123,15 @@ class AwsIotController extends Controller
         // Optionally, you can return a response indicating success
         return response()->json(['message' => 'Plant status updated successfully']);
     }
+    public function getPlantInfo($plantId){
+        $plant = Plant::where('plant_id', $plantId)->first();
+        if (!$plant) {
+            // Handle the case where the plant is not found
+            return response()->json(['error' => 'Plant not found'], 404);
+        }
+        return response()->json(['message' => 'GGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG']);
+
+    }
     
 }
 

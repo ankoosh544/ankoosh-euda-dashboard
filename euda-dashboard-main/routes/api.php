@@ -18,7 +18,7 @@ use App\Http\Controllers\API\AuthController;
 */
 $globalResponse = null;
 
-// Public routes
+//Mobile App API routes Public routes
 Route::post('/login', [AuthController::class, 'login']);
 //Route::get('/plants',[AwsIotController::class, 'plants']);
 // Protected routes
@@ -31,6 +31,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/profile', [AuthController::class, 'profile']);
         Route::get('/things',[AwsIotController::class, 'things']);
         Route::get('/plants',[AwsIotController::class, 'plants']);
+        Route::get('/get-plant-info/{plantId}', [AwsIotController::class, 'getPlantInfo']);
         Route::post('/create-iot-thing', [AwsIotController::class, 'createThing']);
         Route::post('/update-status', [AwsIotController::class, 'updateStatus']);
     
