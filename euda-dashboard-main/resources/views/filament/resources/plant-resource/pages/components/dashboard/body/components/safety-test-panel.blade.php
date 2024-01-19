@@ -40,7 +40,7 @@
         </div>
 
         <div class="group/doorFault relative cursor-default flex items-center text-xs  text-green-800 w-fit bg-green-100 rounded-md px-2 py-0.5">
-        (Remove Elevator Reset)
+        (Euda Remote Reset)
         </div>
     </div>
 </div>

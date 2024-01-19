@@ -75,7 +75,7 @@ class PlantResource extends Resource
                 Group::make()->schema([
                         TextInput::make('name')->label('Name')->required()->reactive(),
                         Select::make('owner_id')
-                            ->label('Owner')
+                            ->label('Administator')
                             ->options(User::all()->pluck('name', 'id'))
                             ->searchable()
                             ->required()
@@ -117,7 +117,7 @@ class PlantResource extends Resource
         return $table
             ->columns([
                 TextColumn::make('name')->label('Name')->sortable()->searchable(),
-                TextColumn::make('owner.name')->label('Owner')->sortable()->searchable(),
+                TextColumn::make('owner.name')->label('Administator')->sortable()->searchable(),
                 TextColumn::make('customer.name')->label('Customer')->sortable()->searchable(),
                 TextColumn::make('state')->label('State')->sortable()->searchable(),
                 TextColumn::make('city')->label('City')->sortable()->searchable(),

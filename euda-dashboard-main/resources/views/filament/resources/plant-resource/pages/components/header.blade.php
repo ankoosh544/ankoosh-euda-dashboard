@@ -39,6 +39,14 @@ if (Auth::check() && Auth::user()->is_admin) {
             {{ $plant->name }}
         </h1>
     </div>
+    @if(!empty($records))
+        @foreach($records as $record)
+            @if(in_array($record['status'], ['Queued', 'IN_PROGRESS']))
+                @include('filament.resources.plant-resource.pages.components.in_progress_notification',['status' => $record['status'], 'thing_type' => $record['thing_type']] )
+            @endif
+        @endforeach 
+    @endif     
+    
     @if(!empty($noversionFound))
         @foreach ($noversionFound as $upload)   
             @include('filament.resources.plant-resource.pages.components.version-notification',['version' => $upload['version'], 'thing_type' => $upload['thing_type'],'admin' => $admin] )
@@ -46,15 +54,5 @@ if (Auth::check() && Auth::user()->is_admin) {
     @else
         @include('filament.resources.plant-resource.pages.components.uptodate-notification')
     @endif
-
-    @if(!empty($records))
-        @foreach($records as $record)
-            @if(in_array($record['status'], ['Queued', 'IN_PROGRESS']))
-                @include('filament.resources.plant-resource.pages.components.in_progress_notification',['status' => $record['status'], 'thing_type' => $record['thing_type']] )
-            @endif
-        @endforeach  
-    @endif
-
-   
 </header>
 

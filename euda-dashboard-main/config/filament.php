@@ -71,7 +71,7 @@ return [
     | This will be displayed on the login page and in the sidebar's header.
     |
     */
-    'brand' => env('APP_NAME', "Mcallin Italia Srl"),
+    'brand' => env('APP_NAME', "Mcallinn Italia Srl"),
 
     
     /*
@@ -142,6 +142,7 @@ return [
             Widgets\AccountWidget::class,
             Widgets\FilamentInfoWidget::class,
         ],
+       
     ],
 
     /*

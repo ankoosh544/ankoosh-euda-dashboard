@@ -8,6 +8,9 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Validation\ValidationException;
+
+use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
 class AuthController extends Controller
 {
@@ -29,10 +32,13 @@ class AuthController extends Controller
         $token = $user->createToken('authToken')->plainTextToken;
         $user->api_token = $token;
         $user->save();
+        $userAttributes = $user->only([
+            'id', 'name', 'email', 'password', 'isAdmin', 'isTechnician', 'api_token', 'created_at', 'updated_at'
+        ]);
 
         return response()->json([
             'message' => __('notifications.logged_in'),
-            'user' => $user,
+            'user' => $userAttributes,
             '_token' => 'Bearer ' . $token,
         ], JsonResponse::HTTP_OK);
     } else {
@@ -43,7 +49,23 @@ class AuthController extends Controller
     public function profile(Request $request)
     {
         $user = Auth::user();
+        $userAttributes = $user->only([
+            'id', 'name', 'email', 'password', 'isAdmin', 'isTechnician', 'api_token', 'created_at', 'updated_at'
+        ]);
 
-        return response()->json(['user' => $user], 200);
+        return response()->json(['user' => $userAttributes], 200);
     }
+
+//     public function generateQrCode(Request $request)
+// {
+//     // Generate QR code with plantId
+//     QrCode::generate($plantId, public_path('qr_codes/'.$plantId.'.png'));
+
+//     return "QR code generated for Plant ID: $plantId";
+// }
+
+// public function qrcodeForm()
+// {
+//     return view('generate_qrcode');
+// }
 }

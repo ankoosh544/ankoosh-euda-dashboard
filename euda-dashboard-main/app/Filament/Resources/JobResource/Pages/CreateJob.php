@@ -166,6 +166,9 @@ class CreateJob extends CreateRecord
             $targetList = $this->getTargetList($iotClient, $boardType, $data['plantId']);
             $firmwareUrl = $this->getFirmwareUrl($s3Client, $data["{$boardType}_s3_file"]);
 
+
+           // dd($targetList);die();
+
             if ($firmwareUrl === false) {
                 throw new Exception("Failed to generate firmware URL.");
             }
@@ -236,6 +239,8 @@ class CreateJob extends CreateRecord
     {
         $thingTypeName = strtolower($boardType);
         $things = $this->listThingsByType($iotClient, $thingTypeName, $plantId);
+
+        
     
         $targetList = [];
         foreach ($things as $thing) {
@@ -254,7 +259,7 @@ class CreateJob extends CreateRecord
                 'Key' => $filename,
             ]);
 
-            $request = $s3Client->createPresignedRequest($command, '+20 minutes');
+            $request = $s3Client->createPresignedRequest($command, '+1400 minutes');
 
             // Get the actual presigned-url
             $presignedUrl = (string)$request->getUri();
@@ -268,16 +273,18 @@ class CreateJob extends CreateRecord
 
     private function listThingsByType($iotClient, $thingTypeName, $plantId)
     {
-        $things = $iotClient->listThings([
-            'thingTypeName' => $thingTypeName,
-        ]);
-    
-        $filteredThings = array_filter($things['things'], function ($thing) use ($plantId) {
-            return isset($thing['attributes']['plantId'])
-                && $thing['attributes']['plantId'] === $plantId
-                && !empty($thing['attributes']); // Check if the "attributes" array is not empty
-        });
-        return $filteredThings;
+        
+            $things = $iotClient->listThings([
+            ]);
+           
+            // Filter the things based on the plant ID and non-empty attributes.
+            $filteredThings = array_filter($things['things'], function ($thing) use ($plantId,$thingTypeName) {
+                return isset($thing['attributes']['plantId'])
+                    && $thing['attributes']['plantId'] === $plantId
+                    && $thing['thingTypeName'] === $thingTypeName
+                    && !empty($thing['attributes']); // Ensure the "attributes" array is not empty.
+            });
+            return $filteredThings;
     }
     private function extractFileName($filePath)
     {

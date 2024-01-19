@@ -11,6 +11,8 @@ use App\Models\Thing;
 use Aws\Iot\IotClient;
 use Aws\Lambda\LambdaClient;
 use Aws\CloudWatchLogs\CloudWatchLogsClient;
+use PDF;
+use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
 class CommandController extends Controller
 {
@@ -32,14 +34,12 @@ class CommandController extends Controller
         ]);
 
         // Get the submitted floor number
-        $floorNumber = $request->input('floorNumber');
+        $floorNumber = (int)$request->input('floorNumber');
 
         // Create a JSON payload
         $payload = json_encode([
             'ERM' => $floorNumber,
         ]);
-
-    
 
         // Publish the JSON payload to an MQTT topic
         try {
@@ -352,5 +352,47 @@ class CommandController extends Controller
             return redirect()->back();
         }
 
+    }
+
+    public function generateQrCode(Request $request)
+    {
+        $plantId = $request->input('plantId');
+        // Generate a QR code
+        $qrCode = QrCode::size(300)->generate($plantId);
+        //dd($qrCode);die();
+        // Generate the PDF using DomPDF
+        $pdf = PDF::loadView('pdf.qr_code_pdf', ['qrCode' => $qrCode]);
+
+        // Return the PDF as a download
+        return $pdf->download('qr_code.pdf');
+    }
+
+
+//     public function generateQrCode(Request $request)
+// {
+//     $plantId = $request->input('plantId');
+
+//     // Generate QR code with plantId
+//     $qrCode = QrCode::format('svg')->size(200)->generate($plantId);
+
+//     // Create a TCPDF instance
+//     $pdf = new TCPDF();
+
+//     // Add a page to the PDF
+//     $pdf->AddPage();
+
+//     // Set font
+//     $pdf->SetFont('times', '', 12);
+
+//     // Add QR code image to the PDF
+//     $pdf->Image('@' . $qrCode, 15, 15, 50, 50, 'PNG');
+
+//     // Output the PDF as a download
+//     $pdf->Output('qr_code_' . $plantId . '.pdf', 'D');
+// }
+    
+    public function qrcodeForm()
+    {
+        return view('generate_qrcode');
     }
 }

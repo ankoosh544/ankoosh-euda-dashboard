@@ -106,28 +106,33 @@ class ViewPlant extends EditRecord
         $eventData = Event::whereDate('created_at', $this->selectedDate)
             ->where('plantId', $this->record->plant_id)
             ->get();
-        $lastEvent = Event::whereDate('created_at', $this->selectedDate)
-            ->where('plantId', $this->record->plant_id)
-            ->latest('created_at')
-            ->first();
-    
         foreach ($messages as $k => $data) {
-                if($lastEvent != null){
-                    $eventIUPS = json_decode($lastEvent->IUPS, true);
-                    $this->currentFloor = $eventIUPS['f'];
-
-                }else{
-                    $this->currentFloor = json_decode($data->IUPS)->f;
-                }
                 $data->FCN = json_decode($data->FCN);
-                foreach ($eventData as $event) {
-                    if (is_array($eventIUPS) && array_key_exists('f', $eventIUPS) && is_numeric($eventIUPS['f'])) {
-                        $index = (int) $eventIUPS['f'] - 1;
-                        if ($index >= 0 && $index < count($data->FCN)) {
-                            $data->FCN[$index]++;
+                $lastFloor = $this->currentFloor; // Initialize with the current floor
+                   
+                    if(empty($eventData)){
+                        $this->currentFloor = json_decode($data->IUPS)->f;
+
+                    }
+                    foreach ($eventData as $event) {
+                        $eventIUPS = json_decode($event->IUPS, true); // Decode as associative array
+                        if (is_array($eventIUPS) && array_key_exists('f', $eventIUPS) && is_numeric($eventIUPS['f'])) {
+                            $this->currentFloor = $eventIUPS['f'];
+                            $lastFloor = $this->currentFloor; // Update the last floor
+                            
+                            $index = (int) $eventIUPS['f'] - 1;
+                            if ($index >= 0 && $index < count($data->FCN)) {
+                                $data->FCN[$index]++;
+                            }
+                        } else {
+                            if($lastFloor != null){
+                                $this->currentFloor = $lastFloor; // Use the last floor if 'f' does not exist
+                            }else{
+                                $this->currentFloor = json_decode($data->IUPS)->f;
+                            }
+                            
                         }
-                    }   
-                }
+                    }
                 $this->FCN = $data->FCN;
                 $this->statusCheck($data->event && $data->event->OOS ? $data->event->OOS : $data->OOS);
                 $this->alarms = [
@@ -187,11 +192,16 @@ class ViewPlant extends EditRecord
                 }
             
             }
-
         $this->totalDoorFault = 0;
         $this->totalOutService = 0;
         if($eventData->isNotEmpty()){
+            $this->FCN = array_fill(0, count($data->FCN), 0);
             foreach ($eventData as $event) {
+                 
+                    if (isset(json_decode($event->IUPS)->f)) {
+                        $this->FCN[json_decode($event->IUPS)->f]++;
+                    }
+                   
                 $DFDArray = json_decode($event->DFD, true);
                if (is_array($DFDArray) && !empty($DFDArray) && count(array_filter($DFDArray, function($value) { return $value !== 0; })) > 0) {
                     foreach ($DFDArray as $key => $value) {
@@ -208,9 +218,12 @@ class ViewPlant extends EditRecord
                     $this->lastOutService = $event->created_at;
                 }
             }
+            
            
+        }else{
+            $this->FCN = $awsObject['FCN'];
         }
-        $this->FCN = $awsObject['FCN'];
+        
 
         //dd($this->FCN);die();
         return json_encode($awsObject);

@@ -7,26 +7,26 @@
                             class="animate-ping absolute inline-flex h-full w-full rounded-full bg-yellow-400 opacity-75"></span>
                             <span class="relative inline-flex rounded-full h-2 w-2 bg-yellow-500"></span>
                         </span>
-                        Last SOS : {{ $lastOutService }}
+                        Last OOS : {{ $lastOutService }}
             
         </div>
         <div class="group/doorFault relative cursor-default flex items-center text-xs  text-yellow-800 w-fit bg-yellow-100 rounded-md px-2 py-0.5">
-        (Smartphone Out of Service Information)
+        (Out of Service)
         </div>
     </div>
     <div class="mb-3 2xl:px-4 px-0">
-        <div class="group/doorFault relative cursor-default flex items-center text-xs font-bold text-yellow-800 w-fit bg-yellow-100 rounded-md px-2 py-0.5">
+        <div class="group/doorFault relative cursor-default fx items-center text-xs font-bold text-yellow-800 w-fit bg-yellow-100 rounded-md px-2 py-0.5">
                             <span class="relative flex h-2 w-2 mr-2">
                                     <span
                                         class="animate-ping absolute inline-flex h-full w-full rounded-full bg-yellow-400 opacity-75"></span>
                                     <span class="relative inline-flex rounded-full h-2 w-2 bg-yellow-500"></span>
                             
                             </span>
-                            Total SOS : {{ $totalOutService }}
+                            Total OSN : {{ $totalOutService }}
             
                 </div>
                 <div class="group/doorFault relative cursor-default flex items-center text-xs  text-yellow-800 w-fit bg-yellow-100 rounded-md px-2 py-0.5">       
-                    (Smartphone Out of Service Information)
+                    (Out of Service)
                 </div>
         </div>
 

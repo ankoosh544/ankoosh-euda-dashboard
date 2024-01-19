@@ -75,7 +75,7 @@ class ThingResource extends Resource
             Section::make('Technical data')->schema([
                 Group::make()->schema([
                         TextInput::make('thing_name')->label('Thing Name')->required()->reactive(),
-                        Forms\Components\Select::make('plantId')->label('Plants')
+                        Forms\Components\Select::make('plantId')->label('Plants')->required()
                         ->options($plantOptions),
 
                         Select::make('thing_type')->label('Thing Type')->options($thingTypes)->required(),
